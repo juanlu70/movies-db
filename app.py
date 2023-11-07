@@ -35,7 +35,6 @@ def open_db(filename: str):
 def generate_movie_release_chart(movies):
     # Count the number of movies released each year
     df = pd.DataFrame(movies)
-    
 
     # Prepare data for the bar chart
 
@@ -121,7 +120,7 @@ def export_data():
 
     # Create a Flask response with the CSV file
     my_response = make_response(send_file("movies.csv"))
-    my_response.mimetype('text/csv')
+    my_response.headers['Content-Type'] = headers['Content-Type']
 
     # Close the in-memory file
     temp_file.close()
