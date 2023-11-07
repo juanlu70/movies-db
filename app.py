@@ -42,8 +42,7 @@ def generate_movie_release_chart(movies):
     data.rename(columns={'release_year': 'movies'}, inplace=True)
     data.reset_index(drop=True)
     data['year'] = data.index
-    print("DATA:")
-    print(data)
+    data['year'] = pd.to_numeric(data['year'])
 
     # Generate the bar chart
     plt.figure(figsize=(16, 12), dpi=80)
@@ -52,12 +51,11 @@ def generate_movie_release_chart(movies):
     plt.ylabel("Number of movies")
 
     # Customize the chart
-    plt.xticks(data['movies'])
-    plt.plot(data['year'], data['movies'], linewidth=2)
+    plt.bar(data['year'], data['movies'], linewidth=2)
     plt.grid(True)
 
     # Optionally, rotate x-axis labels if needed
-    # plt.xticks(rotation=45)
+    plt.xticks(rotation=45)
 
     # Save the chart to a file instead of showing it
     plt.savefig('chart.png')
@@ -73,7 +71,6 @@ def graph_endpoint():
     sql.execute(query)
     movies = sql.fetchall()
     generate_movie_release_chart(movies)
-
 
     return send_file('chart.png', mimetype='image/png')
 
@@ -93,6 +90,7 @@ def load_data_endpoint():
     for item in csv_list:
         brackets = item['title'].count('(')
         if brackets > 0:
+            save = 1
             line = {'title': '', 'release_year': ''}
             parts = item['title'].split(" (")
             if len(parts) == 2:
@@ -101,8 +99,8 @@ def load_data_endpoint():
             if len(parts) == 3:
                 line['title'] = parts[0]+" ("+parts[1]
                 line['release_year'] = parts[2][:-1].replace(")", "")
-            print(line)
-            movies.append(line)
+            if len(line['release_year']) == 4:
+                movies.append(line)
 
     # -- add movies to database --
     sql, bbdd = open_db("database.db")
